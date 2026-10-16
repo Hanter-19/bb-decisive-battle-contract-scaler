@@ -1,7 +1,9 @@
 # Battle Brothers: Decisive Battle Contract Scaler
-A simple mod to adjust the difficulty scale of the Decisive Battle noble contract in Battle Brothers.
+A simple mod to adjust the difficulty scale and final battle army size of the Decisive Battle noble contract in Battle Brothers.
 
-Use mod settings to adjust an additive multiplier to the Decisive Battle contract difficulty.
+Use mod settings to adjust the following:
+- Enemy and allied army additional strength for the final battle
+- An additive multiplier to the Decisive Battle contract difficulty
 
 Can be added mid-save.
 

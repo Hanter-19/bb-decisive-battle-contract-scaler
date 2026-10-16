@@ -1,5 +1,5 @@
 ::DecisiveBattleContractScaler <- {
-    Version = "1.0.0",
+    Version = "1.1.0",
     ID = "mod_decisive_battle_contract_scaler",
     Name = "Decisive Battle Contract Scaler"
 };
