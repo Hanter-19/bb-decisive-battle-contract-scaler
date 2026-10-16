@@ -16,14 +16,59 @@
     }
 };
 
-::DecisiveBattleContractScaler.Utils.simulateArmy <- function () {
+::DecisiveBattleContractScaler.Utils.upgradeEnemyArmy <- function ( _properties, _faction ) {
+    local additionalEnemyNobleStrength = ::DecisiveBattleContractScaler.Mod.ModSettings.getSetting(::DecisiveBattleContractScaler.Const.EnemyIncreaseSetting).getValue();
+    local additionalEnemyMercenaryStrength = ::DecisiveBattleContractScaler.Mod.ModSettings.getSetting(::DecisiveBattleContractScaler.Const.MercenaryIncreaseSetting).getValue();
+    
+    ::DecisiveBattleContractScaler.Mod.Debug.printLog("Adding noble enemies with budget of " + additionalEnemyNobleStrength);
+    ::Const.World.Common.addUnitsToCombat(_properties.Entities, ::Const.World.Spawn.Noble, additionalEnemyNobleStrength, _faction);
+
+    ::DecisiveBattleContractScaler.Mod.Debug.printLog("Adding mercenary enemies with budget of " + additionalEnemyMercenaryStrength);
+    ::Const.World.Common.addUnitsToCombat(_properties.Entities, ::Const.World.Spawn.Mercenaries, additionalEnemyMercenaryStrength, _faction);
+}
+
+::DecisiveBattleContractScaler.Utils.upgradeAlliedArmy <- function ( _properties, _faction ) {
+    local additionalAlliedStrength = ::DecisiveBattleContractScaler.Mod.ModSettings.getSetting(::DecisiveBattleContractScaler.Const.AllyIncreaseSetting).getValue();
+    
+    ::DecisiveBattleContractScaler.Mod.Debug.printLog("Adding noble allies with budget of " + additionalAlliedStrength);
+    ::Const.World.Common.addUnitsToCombat(_properties.Entities, ::Const.World.Spawn.Noble, additionalAlliedStrength, _faction);
+}
+
+::DecisiveBattleContractScaler.Utils.upgradeFinalBattleArmies <- function ( _properties, _enemyFaction, _alliedFaction ) {
+    ::DecisiveBattleContractScaler.Utils.upgradeEnemyArmy(_properties, _enemyFaction);
+    ::DecisiveBattleContractScaler.Utils.upgradeAlliedArmy(_properties, _alliedFaction);
+}
+
+::DecisiveBattleContractScaler.Utils.simulateEnemyArmy <- function () {
     local dummyContract = ::new("scripts/contracts/contracts/decisive_battle_contract");
+    local dummyFaction = -1;
     local addedContractDifficultyMult = ::DecisiveBattleContractScaler.Mod.ModSettings.getSetting(::DecisiveBattleContractScaler.Const.DiffMultSetting).getValue();
     local contractDifficultyMult = dummyContract.getDifficultyMult() + addedContractDifficultyMult;
     local expectedEnemyStrength = 150; // assumes the player succeeded at all tasks
+    local mercenaryStrength = 60; // vanilla fixed value
     local armyList = [];
-    ::Const.World.Common.addUnitsToCombat(armyList, ::Const.World.Spawn.Noble, expectedEnemyStrength * contractDifficultyMult * dummyContract.getScaledDifficultyMult(), -1);
-    return armyList;
+    ::Const.World.Common.addUnitsToCombat(armyList, ::Const.World.Spawn.Noble, expectedEnemyStrength * contractDifficultyMult * dummyContract.getScaledDifficultyMult(), dummyFaction);
+    ::Const.World.Common.addUnitsToCombat(armyList, ::Const.World.Spawn.Mercenaries, mercenaryStrength * contractDifficultyMult * dummyContract.getScaledDifficultyMult(), dummyFaction);
+    local p = {
+        Entities = armyList
+    };
+    ::DecisiveBattleContractScaler.Utils.upgradeEnemyArmy(p, dummyFaction);
+    return p.Entities;
+};
+
+::DecisiveBattleContractScaler.Utils.simulateAlliedArmy <- function () {
+    local dummyContract = ::new("scripts/contracts/contracts/decisive_battle_contract");
+    local dummyFaction = -2;
+    local addedContractDifficultyMult = ::DecisiveBattleContractScaler.Mod.ModSettings.getSetting(::DecisiveBattleContractScaler.Const.DiffMultSetting).getValue();
+    local contractDifficultyMult = dummyContract.getDifficultyMult() + addedContractDifficultyMult;
+    local expectedAlliedStrength = 90; // assumes the player succeeded at all tasks
+    local armyList = [];
+    ::Const.World.Common.addUnitsToCombat(armyList, ::Const.World.Spawn.Noble, expectedAlliedStrength * contractDifficultyMult * dummyContract.getScaledDifficultyMult(), dummyFaction);
+    local p = {
+        Entities = armyList
+    };
+    ::DecisiveBattleContractScaler.Utils.upgradeAlliedArmy(p, dummyFaction);
+    return p.Entities;
 };
 
 ::DecisiveBattleContractScaler.Utils.logArmy <- function (_armyList) {
